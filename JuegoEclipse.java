@@ -5,10 +5,13 @@ import java.util.Scanner;
 public class JuegoEclipse {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción;
-		String personaje, personaje2, enemigo, enemigo2;
+		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción, variable, opciones;
+		String personaje, personaje2, enemigo, enemigo2, opcion;
 		String[][] informacion = new String[6][7];
-		int [][] datosPersonajes;
+		int [][] datosPersonajes, statsTotales;
+		boolean certeza = false;
+		statsTotales = new int[6][4];
+		int [][]movimientos = new int[6][4];
 
 		System.out.println("\n Saludos, este es un juego de batalla de hasta 5 personajes, que son los siguientes.");
 		System.out.println("\t1er personaje: Eclipse.");
@@ -25,7 +28,9 @@ public class JuegoEclipse {
 			enemigo = "";
 			personaje2 = "";
 			enemigo2 = "";
+			informacion = informacion(informacion);
 			switch (eleccion) {
+				
 			case 1:
 				informacion = informacion(informacion);
 				System.out.println(
@@ -39,18 +44,45 @@ public class JuegoEclipse {
 				
 			case 2:
 				System.out.println(
-						"¡¡¡Perfecto!!! ¿Cuál personaje quieres escoger? Escoge pulsando un número del 1 al 6.");
+						"¡¡¡Perfecto!!! ¿Cual personaje quieres escoger? Escoge pulsando un numero del 1 al 6.");
 				personajeUno = sc.nextInt();
-				personajeUno = Reeleccion(personajeUno, -999); 
+				personajeUno = Reeleccion(personajeUno, -999);
+				personaje = "";
+				enemigo = "";
 				sysoPersonaje(personajeUno, personaje);
 				personajeDos = randomizer(personajeUno, 0, 0, 0);
 				sysoEnemigo(personajeDos, personaje);
 				personaje = nombrePj(personajeUno, personaje);
 				enemigo = nombrePj(personajeDos, enemigo);
-				
-				System.out.println(personaje+" V/s "+enemigo+". ");
+				System.out.println(personaje + " V/s " + enemigo + ". ");
 
 				System.out.println("\n¡¡¡Que comience el combate!!!");
+				statsTotales = statsPersonajes(statsTotales);
+				variable = 0;
+
+				do {
+					System.out.println("\nTus movimientos son:");
+					muestraPersonaje(informacion, personajeUno);
+					System.out.println("\n¿Qué harás, atacar, usar un objeto, o tirar una moneda?");
+					sc.nextLine();
+					opcion = sc.nextLine();
+					opciones = eleccionIncorrecta(opcion, variable);
+					switch (opciones) {
+					case 1:
+						System.out.println("Perfecto, ¿Qué movimiento vas a querer usar?");
+						break;
+					case 2:
+						System.out.println("Perfecto, ¿Qué item vas a querer usar?");
+						break;
+					case 3:
+						System.out.println("Perfecto, vamos a tirar tu moneda.");
+						System.out.println(tirarMoneda());
+						break;
+					}
+					variable++;
+					System.out.println("\nFelicidades, has acabado el juego.");
+
+				} while (statsTotales[personajeUno][0] > 0 || statsTotales[personajeDos][0] > 0);
 				break;
 			case 3:
 				System.out.println(
@@ -74,15 +106,11 @@ public class JuegoEclipse {
 			case 4:
 				
 				System.out.println(
-						"\nGenial, pulsa un número del personaje del cuál quieres buscar información, y a continuación te mostraré su información.");
+						"\nGenial, pulsa un numero del personaje del cual quieres buscar información, y a continuacion te mostrare su informacion.");
 				personajeUno = sc.nextInt();
 				personajeUno = Reeleccion(personajeUno, -999);
 				personajeUno = personajeUno - 1;
-				informacion(informacion);
-				String[][] character = informacion;
-
-				infoPJ(character, personajeUno);
-
+				infoPJ(informacion, personajeUno);
 				break;
 			case 5:
 				System.out.println(
@@ -93,6 +121,89 @@ public class JuegoEclipse {
 			}
 		} while (eleccion != 5);
 		sc.close();
+	}
+	public static String tirarMoneda () {
+		String moneda;
+		int max = 2;
+		int min = 1;
+		int range = (max-min) + min;
+		int random = (int) ((range * Math.random()) + min);
+		if (random == 1) {
+			moneda = "Cara.";
+		}
+		else {
+			moneda = "Cruz.";
+		}
+		return moneda;
+	}
+
+	public static void muestraPersonaje(String[][] matriz, int personaje) {
+		for (int i = 1; i < 6; i++) {
+			System.out.println(matriz[personaje][i]);
+		}
+	}
+
+	public static boolean equalsParaGuillamon(String texto, String palabra) {
+		Scanner sc = new Scanner(System.in);
+		boolean certeza;
+		String palabraTransformada = "";
+		int numero = 0;
+		char letra;
+		for (int i = 0; i < palabra.length(); i++) {
+			letra = palabra.charAt(i);
+			if (letra >= 'A' & letra <= 'Z') {
+				numero = letra + 32;
+				letra = (char) numero;
+				palabraTransformada += letra;
+			} else if (letra >= 'a' & letra <= 'z') {
+				palabraTransformada += letra;
+			}
+		}
+		certeza = (palabraTransformada.equals(texto));
+		return certeza;
+	}
+
+public static int eleccionIncorrecta(String opcion, int variable) {
+		
+		int noSeComoLlamarEstaVariable = 0;
+		int ola = 0;
+
+		if (equalsParaGuillamon("atacar", opcion) == true) {
+
+			noSeComoLlamarEstaVariable = 1;
+			ola++;
+		} else if (equalsParaGuillamon("usarunobjeto", opcion) == true) {
+
+			noSeComoLlamarEstaVariable = 2;
+			ola++;
+		} else if (equalsParaGuillamon("tirarunamoneda", opcion) == true) {
+
+			noSeComoLlamarEstaVariable = 3;
+			ola++;
+		}
+
+		while (ola < 1) {
+			System.out.println("\nError, tienes que escoger o 'Atacar', o 'Usar un objeto', o 'Tirar una moneda'.");
+			Scanner sc = new Scanner(System.in);
+			if (variable == 0) {
+				opcion = sc.nextLine();
+			}
+			else {
+				sc.nextLine();
+				opcion = sc.nextLine();
+			}
+			if (equalsParaGuillamon("atacar", opcion) == true) {
+				ola++;
+				noSeComoLlamarEstaVariable = 1;
+			} else if (equalsParaGuillamon("usarunobjeto", opcion) == true) {
+				ola++;
+				noSeComoLlamarEstaVariable = 2;
+			} else if (equalsParaGuillamon("tirarunamoneda", opcion) == true) {
+				ola++;
+				noSeComoLlamarEstaVariable = 3;
+			}
+		}
+		return noSeComoLlamarEstaVariable;
 	}
 public static void infoMovsUsuario (int eleccionPersonaje, String[][] cadena) {
 	if (eleccionPersonaje == 0) {
@@ -127,6 +238,68 @@ public static void infoMovsUsuario (int eleccionPersonaje, String[][] cadena) {
 	}
 	
 }
+
+public static int[][] usabilidadMovs(int[][] informacion) {
+	// 0: HP, 1: Ataque, 2: Defensa, 3: Velocidad.
+	// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
+	informacion[0][0] = 1750;
+	informacion[0][1] = 450;
+	informacion[0][2] = 400;
+	informacion[0][3] = 500;
+	informacion[1][0] = 1750;
+	informacion[1][1] = 500;
+	informacion[1][2] = 300;
+	informacion[1][3] = 450;
+	informacion[2][0] = 1750;
+	informacion[2][1] = 600;
+	informacion[2][2] = 250;
+	informacion[2][3] = 350;
+	informacion[3][0] = 1750;
+	informacion[3][1] = 400;
+	informacion[3][2] = 500;
+	informacion[3][3] = 550;
+	informacion[4][0] = 1750;
+	informacion[4][1] = 400;
+	informacion[4][2] = 300;
+	informacion[4][3] = 700;
+	informacion[5][0] = 1750;
+	informacion[5][1] = 400;
+	informacion[5][2] = 400;
+	informacion[5][3] = 400;
+
+	return informacion;
+}
+public static int[][] statsPersonajes(int[][] informacion) {
+	// 0: HP, 1: Ataque, 2: Defensa, 3: Velocidad.
+	// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
+	informacion[0][0] = 1750;
+	informacion[0][1] = 450;
+	informacion[0][2] = 400;
+	informacion[0][3] = 500;
+	informacion[1][0] = 1750;
+	informacion[1][1] = 500;
+	informacion[1][2] = 300;
+	informacion[1][3] = 450;
+	informacion[2][0] = 1750;
+	informacion[2][1] = 600;
+	informacion[2][2] = 250;
+	informacion[2][3] = 350;
+	informacion[3][0] = 1750;
+	informacion[3][1] = 400;
+	informacion[3][2] = 500;
+	informacion[3][3] = 550;
+	informacion[4][0] = 1750;
+	informacion[4][1] = 400;
+	informacion[4][2] = 300;
+	informacion[4][3] = 700;
+	informacion[5][0] = 1750;
+	informacion[5][1] = 400;
+	informacion[5][2] = 400;
+	informacion[5][3] = 400;
+
+	return informacion;
+}
+
 	public static String[][] informacion(String[][] informacion) {
 		informacion[0][0] = "\nEclipse, este es el personaje principal y el héroe de este mundo, al igual que todos los personajes de este juego, sus habilidades son muy poderosas e interesantes. Procede de la raza 'Phaisa' y sus habilidades que lo caracterizan son la manipulación de su propia energia, la invulnerabilidad de ataques físicos y su Soulfuck.";
 		informacion[0][1] = "Clonación: Eclipse usará esta habilidad para crear una cantidad indefinida de clones, pueden ser 1 clon como mínimo, y 4 como máximo, solo durara 1 turno.";
@@ -213,22 +386,20 @@ public static String nombrePj(int personaje, String cadena) {
 		Scanner sc = new Scanner(System.in);
 		--primerPersonaje;
 		while (primerPersonaje < 0 || primerPersonaje > 5) {
-			System.out.println((primerPersonaje+1)
+			System.out.println(primerPersonaje
 					+ " no es un numero asignado a los 6 personajes de nuestro roster, por favor, vuelve a intentarlo.");
 			primerPersonaje = sc.nextInt();
-			--primerPersonaje;
 		}
 		if (segundoPersonaje != -999) {
 			while (segundoPersonaje == primerPersonaje || segundoPersonaje < 0 || segundoPersonaje > 5) {
 				if (segundoPersonaje == primerPersonaje) {
 					System.out.println("Error, no se puede escoger dos veces al mismo personaje.");
 				} else if (segundoPersonaje < 0 || segundoPersonaje > 5) {
-					System.out.println((segundoPersonaje+1)
+					System.out.println(segundoPersonaje
 							+ " no es un numero asignado a los 6 personajes de nuestro roster, por favor, vuelve a intentarlo.");
 				}
 
 				segundoPersonaje = sc.nextInt();
-				--segundoPersonaje;
 			}
 		}
 
@@ -236,18 +407,14 @@ public static String nombrePj(int personaje, String cadena) {
 	}
 
 	public static int randomizer(int personaje1, int personaje2, int personaje3, int personaje4) {
-		int max = 5;
-		int min = 0;
+		int max = 6;
+		int min = 1;
 		int range = (max - min) + min;
 		int random = (int) ((range * Math.random()) + min);
-		
-		if (random != 0) {
-			--random;
-		}
-		
-	
+		--random;
 		while (random == personaje1 || random == personaje2 || random == personaje3 || random == personaje4) {
 			random = (int) ((range * Math.random()) + min);
+			--random;
 		}
 		return random;
 	}
