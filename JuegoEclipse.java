@@ -8,12 +8,15 @@ public class JuegoEclipse {
 		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción, variable, opciones;
 		String personaje, personaje2, enemigo, enemigo2, opcion;
 		String[][] informacion = new String[6][7];
+		String[][] informacionDeItems = new String[6][1];
 		int[][] datosPersonajes, statsTotales;
 		boolean certeza = false;
 		statsTotales = new int[6][4];
-		int[][] movimientos = new int[6][4];
+		int[][] movimientos = new int[6][5];
+		movimientos = potenciaMovs(movimientos);
 		int[][] puntosMovimientos = new int[6][5];
-
+int items[][] = new int[6][2];
+int totalDeItems = 6;
 		System.out.println("\n Saludos, este es un juego de batalla de hasta 5 personajes, que son los siguientes.");
 		System.out.println("\t1er personaje: Eclipse.");
 		System.out.println("\t2ndo personaje: Evil.");
@@ -43,6 +46,7 @@ public class JuegoEclipse {
 						"Bien. Acabas de empezar el tutorial con " + personaje + ", elige el movimiento que quieras.");
 				infoMovsUsuario(personajeUno, informacion);
 				acción = sc.nextInt();
+				
 
 			case 2:
 				System.out.println(
@@ -74,25 +78,42 @@ public class JuegoEclipse {
 						System.out.println("\nTus movimientos son:");
 						muestraPersonaje(informacion, personajeUno);
 						System.out.println("\n¿Qué harás, atacar, usar un objeto, o tirar una moneda?");
+						sc.nextLine();
 						opcion = sc.nextLine();
 						opciones = eleccionIncorrecta(opcion, variable);
 					}
 					switch (opciones) {
 					case 1:
 						System.out.println("Perfecto, ¿Qué movimiento vas a querer usar?");
+						muestraPersonaje(informacion, personajeUno);
+						acción = sc.nextInt();
+						--acción;
+						batalla(personajeUno, statsTotales, acción, personajeDos, movimientos);
 						break;
 					case 2:
 						System.out.println("Perfecto, ¿Qué item vas a querer usar?");
+					items = devolverMatrizDeItems(items, personajeUno);
+					informacionDeItems = devolverMatrizDeInformacion(items, informacionDeItems);
+					statsTotales = items(items, informacionDeItems, totalDeItems, statsTotales);
 						break;
 					case 3:
 						System.out.println("Perfecto, vamos a tirar tu moneda.");
-						System.out.println(tirarMoneda());
+						System.out.println("Elige entre cara (1) o cruz (2).");
+						opciones = sc.nextInt(); 
+						while (opciones < 1 || opciones > 2) {
+							System.out.println("Error, vuelve a intentarlo.");
+							opciones = sc.nextInt();
+						}
+						certeza = tirarMoneda(opciones, certeza);
+						sumadorDeStats(certeza, statsTotales, personajeUno);
+						
 						break;
 					}
 					variable++;
-					System.out.println("\nFelicidades, has acabado el juego.");
+					
 
-				} while (statsTotales[personajeUno][0] > 0 || statsTotales[personajeDos][0] > 0);
+				} while (statsTotales[personajeUno][0] > 0 && statsTotales[personajeDos][0] > 0);
+				System.out.println("\nFelicidades, has acabado el juego.");
 				break;
 			case 3:
 				System.out.println(
@@ -132,18 +153,33 @@ public class JuegoEclipse {
 		sc.close();
 	}
 
-	public static String tirarMoneda() {
+	public static boolean tirarMoneda(int opcion, boolean verificador) {
 		String moneda;
 		int max = 2;
 		int min = 1;
 		int range = (max - min) + min;
 		int random = (int) ((range * Math.random()) + min);
-		if (random == 1) {
-			moneda = "\nHa salido cara.";
-		} else {
-			moneda = "\nHa salido cruz.";
+		switch (random) {
+		case 1:
+			if (random == opcion) {
+				System.out.println("Has acertado.");
+				verificador = true;
+			} else {
+				System.out.println("Mala suerte, has fallado.");
+				verificador = false;
+			}
+			break;
+		case 2:
+			if (random == opcion) {
+				System.out.println("Has acertado.");
+				verificador = true;
+			} else {
+				System.out.println("Mala suerte, has fallado.");
+				verificador = false;
+			}
+			break;
 		}
-		return moneda;
+		return verificador;
 	}
 
 	public static void muestraPersonaje(String[][] matriz, int personaje) {
@@ -239,7 +275,6 @@ public class JuegoEclipse {
 	}
 
 	public static int[][] usabilidadMovs(int[][] informacion) {
-		// 0: HP, 1: Ataque, 2: Defensa, 3: Velocidad.
 		// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
 		informacion[0][0] = 4;
 		informacion[0][1] = 10;
@@ -250,12 +285,13 @@ public class JuegoEclipse {
 		informacion[1][0] = 5;
 		informacion[1][1] = 6;
 		informacion[1][2] = 7;
-		informacion[1][3] = 1; //Esta habilidad solo dura 3 turnos
+		informacion[1][3] = 1; // Esta habilidad solo dura 3 turnos
 		informacion[1][4] = 3; // Esta solo dura 4 turnos
 
-		informacion[2][0] = 1; //Esta habilidad es infinita
+		informacion[2][0] = 1; // Esta habilidad es infinita
 		informacion[2][1] = 3;
-		informacion[2][2] = 2; // esta dura 3 turnos y solo se puede usar despues de que el efecto de la anterior haya acabado
+		informacion[2][2] = 2; // esta dura 3 turnos y solo se puede usar despues de que el efecto de la
+								// anterior haya acabado
 		informacion[2][3] = 7;
 		informacion[2][4] = 5;
 
@@ -486,5 +522,210 @@ public class JuegoEclipse {
 			cadena += "ChuhZmR.";
 		}
 		System.out.println(cadena);
+	}
+
+	public static int[][] potenciaMovs(int[][] informacion) {
+		// Estos son los movimientos del personaje y el daño que hacen
+		// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
+		informacion[0][0] = 0;
+		informacion[0][1] = 0;
+		informacion[0][2] = 250;
+		informacion[0][3] = 0;
+		informacion[0][4] = 200;
+
+		informacion[1][0] = 0;
+		informacion[1][1] = 300;
+		informacion[1][2] = 250;
+		informacion[1][3] = 0;
+		informacion[1][4] = 0;
+
+		informacion[2][0] = 0;
+		informacion[2][1] = 0;
+		informacion[2][2] = 0;
+		informacion[2][3] = 300;
+		informacion[2][4] = 250;
+
+		informacion[3][0] = 0;
+		informacion[3][1] = 0;
+		informacion[3][2] = 150;
+		informacion[3][3] = 150;
+		informacion[3][4] = 250;
+
+		informacion[4][0] = 0;
+		informacion[4][1] = 450;
+		informacion[4][2] = 250;
+		informacion[4][3] = 0;
+		informacion[4][4] = 0;
+
+		informacion[5][0] = 0;
+		informacion[5][1] = 0;
+		informacion[5][2] = 0;
+		informacion[5][3] = 200;
+		informacion[5][4] = 450;
+
+		return informacion;
+	}
+
+	public static double numeroRandom() {
+		double max = 0.7;
+		double min = 0.3;
+		double range = (max - min) + min;
+		double random = (double) ((range * Math.random()) + min);
+		return random;
+	}
+
+	public static void batalla(int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs) {
+		// Esto es el combate
+		Scanner sc = new Scanner(System.in);
+		while (eleccion < 1 || eleccion > 5) {
+			System.out.println("Error, no puedes escoger eso. Vuelve a intentarlo.");
+			eleccion = sc.nextInt();
+		}
+		double random = numeroRandom();
+		statsTotales[enemigo][0] -= ((statsTotales[usuario][1] * potenciaMovs[usuario][eleccion]) * random)
+				/ statsTotales[enemigo][2];
+		if (statsTotales[enemigo][0] > 1) {
+			System.out.println("A tu enemigo le quedan: " + statsTotales[enemigo][0] + " de HP.");
+		} else {
+			System.out.println("A tu enemigo le quedan: " + 0 + " de HP.");
+		}
+	}
+
+	public static int[][] sumadorDeStats(int[][] matriz, int personaje) {
+		int max = 3;
+		int min = 1;
+		int range = (max - min) + min;
+		int random = (int) ((range * Math.random()) + min);
+		switch (random) {
+		case 1:
+			matriz[personaje][1] += 50;
+			break;
+		case 2:
+			matriz[personaje][2] += 50;
+			break;
+		case 3:
+			matriz[personaje][3] += 50;
+			break;
+		}
+		return matriz;
+	}
+
+	public static int[][] sumadorDeStats(boolean certeza, int[][] matriz, int personaje) {
+
+		if (certeza == true) {
+			int max = 3;
+			int min = 1;
+			int range = (max - min) + min;
+			int random = (int) ((range * Math.random()) + min);
+			switch (random) {
+			case 1:
+				matriz[personaje][1] += 50;
+				System.out.println("¡¡¡Ha aumentado tu ataque!!!");
+				break;
+			case 2:
+				matriz[personaje][2] += 50;
+				System.out.println("¡¡¡Ha aumentado tu defensa!!!");
+				break;
+			case 3:
+				matriz[personaje][3] += 50;
+				System.out.println("¡¡¡Ha aumentado tu velocidad!!!");
+				break;
+			}
+		} else {
+			System.out.println("lo siento, has fallado y no obtienes ningun boost de stats.");
+		}
+		return matriz;
+	}
+
+	public static int[][] devolverMatrizDeItems(int matriz[][], int personaje) {
+		if (personaje == 6) {
+			matriz[0][0] = 875;
+			matriz[0][1] = 1;
+			matriz[1][0] = 450;
+			matriz[1][1] = 2;
+			matriz[2][0] = 3;
+			matriz[2][1] = 100;
+			matriz[3][0] = 37; // Stats de ataque.
+			matriz[3][1] = 100;
+			matriz[4][0] = 37; // Stats de Defensa.
+			matriz[4][1] = 100;
+			matriz[5][0] = 37; // Stats de Velocidad.
+			matriz[5][1] = 100;
+			/**/
+		} else {
+			// Estos items aumentan los puntos de salud del usuario.
+			matriz[0][0] = 875;
+			matriz[0][1] = 1;
+			matriz[1][0] = 450;
+			matriz[1][1] = 2;
+			// Este aumenta los pps del personaje.
+			matriz[2][0] = 3;
+			matriz[2][1] = 1;
+			// Estos aumentan los stats del personaje
+			matriz[3][0] = 37; // Stats de ataque.
+			matriz[3][1] = 2;
+			matriz[4][0] = 37; // Stats de Defensa.
+			matriz[4][1] = 2;
+			matriz[5][0] = 37; // Stats de Velocidad.
+			matriz[5][1] = 2;
+			
+		}
+
+		
+		return matriz;
+	}
+	public static String[][] devolverMatrizDeInformacion(int matriz[][], String[][] matrix) {
+		matrix[0][0] = "Elixir de Luminaria: Este item sube los puntos de salud del usuario a la mitad, tienes "
+				+ matriz[0][1] + " puntos de pp.";
+		matrix[1][0] = "Brebaje vital: Este item sube los puntos de salud del usuario a un cuarto, tienes "
+				+ matriz[1][1] + " puntos de pp.";
+		matrix[2][0] = "Tónico de Concentración: Este item sube los pps de un movimiento del usuario, tienes "
+				+ matriz[2][1] + " puntos de pp.";
+		matrix[3][0] = "Filofera: Este item aumenta el ataque del usuario, tienes " + matriz[3][1]
+				+ " puntos de pp.";
+		matrix[4][0] = "Aegisflora: Este item aumenta la defensa del usuario, tienes " + matriz[4][1]
+				+ " puntos de pp.";
+		matrix[5][0] = "Velosprint: Este item aumenta la velocidad del usuario, tienes " + matriz[5][1]
+				+ " puntos de pp.";
+		return matrix;
+	}
+	
+	public static int[][] items(int [][]matriz, String [][]matrix, int totalDeItems, int[][] statsUsuario) {
+		Scanner sc = new Scanner(System.in);
+		int opcion;
+		String opciones;
+		if (matriz[0][1] == 0 || matriz[1][1] == 0 || matriz[2][1] == 0 || matriz[3][1] == 0 || matriz[4][1] == 0
+				|| matriz[5][1] == 0) {
+			totalDeItems--;
+		}
+		System.out.println("Tienes a tu disposición un total de " + totalDeItems + " items, ¿Cuál quieres elegir?");
+		opcion = sc.nextInt();
+		--opcion;
+		while (matriz[opcion][1] < 1 || opcion < 0 || opcion > 5) {
+			if (matriz[opcion][1] < 1) {
+				System.out.println("Item acabado, lo siento, vuelve a intentarlo.");
+			} else if (opcion < 0 || opcion > 5) {
+				System.out.println(opcion + " no es un item que puedas elegir, vuelve a intentarlo.");
+			}
+			opcion = sc.nextInt();
+			--opcion;
+		}
+		System.out.println(matrix[opcion][0]);
+		System.out.println("¿Quieres usarlo?");
+		sc.nextLine();
+		opciones = sc.nextLine();
+		while (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("no", opciones) == false && equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("si", opciones) == false) {
+			System.out.println("Tienes que decir o si, o no, vuelve a intentarlo.");
+			opciones = sc.nextLine();
+		}
+		if (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("si", opciones) == true) {
+			System.out.println(statsUsuario[opcion][0]);
+			statsUsuario[opcion][0] += matriz[opcion][0];
+		}
+		else if (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("no", opciones) == true) {
+			System.out.println("Genial, vamos de vuelta al menú");
+		}
+		System.out.println(statsUsuario[opcion][0]);
+		return statsUsuario;
 	}
 }
