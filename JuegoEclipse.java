@@ -4,26 +4,22 @@ import java.util.Scanner;
 
 public class JuegoEclipse {
 	public static void main(String[] args) {
-		
-		//Principio de las variables/constantes
-		
+
+		// Principio de las variables/constantes
+
 		Scanner sc = new Scanner(System.in);
-		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción, variable, opciones, opcionUsuario, choosing =0;
+		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción, variable, opciones,
+				opcionUsuario, choosing = 0;
 		String personaje, personaje2, enemigo, enemigo2, opcion;
 		String[][] informacion = new String[6][7];
 		String[][] informacionDeItems = new String[6][1];
 		int[][] datosPersonajes, statsTotales;
 		boolean certeza = false;
-		statsTotales = new int[6][4];
-		int[][] movimientos = new int[6][5];
-		movimientos = potenciaMovs(movimientos);
-		int[][] puntosMovimientos = new int[6][5];
-		int items[][] = new int[6][2];
-		items = devolverMatrizDeItems(items);
+		statsTotales = new int[6][27];
 		int totalDeItems;
-		
-		//Final de variables/constantes
-		
+
+		// Final de variables/constantes
+
 		System.out.println("\n Saludos, este es un juego de batalla de hasta 5 personajes, que son los siguientes.");
 		System.out.println("\t1er personaje: Eclipse.");
 		System.out.println("\t2ndo personaje: Evil.");
@@ -32,6 +28,7 @@ public class JuegoEclipse {
 		System.out.println("\t5to personaje: Keravnos.");
 		System.out.println("\t6to personaje: ChuhZmR.");
 		do {
+			statsTotales = Personajes(statsTotales);
 			System.out.println(
 					"\nAhora, dime qué es lo que quieres hacer, ¿Preferirias hacer un tutorial (pulsa '1')? ¿Preferirías establecer un modo de combate 1vs1 (pulsa '2'), un modo de combate 2v2 (pulsa '3'), preferirias ver la información de cada personaje? (pulsa '4'), o preferirías acabar este juego? (pulsa '5')");
 			eleccion = sc.nextInt();
@@ -40,6 +37,8 @@ public class JuegoEclipse {
 			personaje2 = "";
 			enemigo2 = "";
 			informacion = informacion(informacion);
+			informacionDeItems = devolverMatrizDeInformacion(statsTotales, informacionDeItems);
+			
 			switch (eleccion) {
 
 			case 1:
@@ -69,7 +68,7 @@ public class JuegoEclipse {
 				System.out.println(personaje + " V/s " + enemigo + ". ");
 
 				System.out.println("\n¡¡¡Que comience el combate!!!");
-				statsTotales = statsPersonajes(statsTotales);
+
 				variable = 0;
 
 				System.out.println("\nTus movimientos son:");
@@ -78,7 +77,6 @@ public class JuegoEclipse {
 				sc.nextLine();
 				opcion = sc.nextLine();
 				opciones = eleccionIncorrecta(opcion, variable);
-				items = excepcionChuh(items, personajeUno);
 
 				do {
 					if (variable > 0) {
@@ -95,14 +93,14 @@ public class JuegoEclipse {
 						muestraPersonaje(informacion, personajeUno);
 						acción = sc.nextInt();
 						--acción;
-						batalla(personajeUno, statsTotales, acción, personajeDos, movimientos);
+						//batalla(personajeUno, statsTotales, acción, personajeDos);
 						break;
 					case 2:
 						totalDeItems = 6;
-						informacionDeItems = devolverMatrizDeInformacion(items, informacionDeItems);
-						totalDeItems = devuelveItemsUsables(totalDeItems, items);
+
 						System.out.println("Perfecto, ¿Qué item vas a querer usar?");
-						System.out.println("Antes de empezar, recuerda que tienes a tu disposición un total de " + totalDeItems + " items, ahora, ¿Cuál quieres elegir?");
+						System.out.println("Antes de empezar, recuerda que tienes a tu disposición un total de "
+								+ totalDeItems + " items, ahora, ¿Cuál quieres elegir?");
 						opcionUsuario = sc.nextInt();
 						--opcionUsuario;
 						while (items[opcionUsuario][1] < 1 || opcionUsuario < 0 || opcionUsuario > 5) {
@@ -114,9 +112,10 @@ public class JuegoEclipse {
 							opcionUsuario = sc.nextInt();
 							--opcionUsuario;
 						}
-						choosing = choosing(sc, choosing,  informacionDeItems, opcionUsuario);
-						statsTotales = sistemaDeItems(sc, items, informacionDeItems, totalDeItems, statsTotales, opcionUsuario, choosing);
-						items = restador(items, choosing, opcionUsuario);
+						choosing = choosing(sc, choosing, informacionDeItems, opcionUsuario);
+						statsTotales = sistemaDeItems(sc, items, informacionDeItems, totalDeItems, statsTotales,
+								opcionUsuario, choosing);
+						
 						break;
 					case 3:
 						System.out.println("Perfecto, vamos a tirar tu moneda.");
@@ -294,80 +293,198 @@ public class JuegoEclipse {
 
 	}
 
-	public static int[][] usabilidadMovs(int[][] informacion) {
-		// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
-		informacion[0][0] = 4;
-		informacion[0][1] = 10;
-		informacion[0][2] = 7;
-		informacion[0][3] = 1;
-		informacion[0][4] = 6;
-
-		informacion[1][0] = 5;
-		informacion[1][1] = 6;
-		informacion[1][2] = 7;
-		informacion[1][3] = 1; // Esta habilidad solo dura 3 turnos
-		informacion[1][4] = 3; // Esta solo dura 4 turnos
-
-		informacion[2][0] = 1; // Esta habilidad es infinita
-		informacion[2][1] = 3;
-		informacion[2][2] = 2; // esta dura 3 turnos y solo se puede usar despues de que el efecto de la
-								// anterior haya acabado
-		informacion[2][3] = 7;
-		informacion[2][4] = 5;
-
-		informacion[3][0] = 1; // Esta dura infinitamente
-		informacion[3][1] = 7;
-		informacion[3][2] = 5;
-		informacion[3][3] = 5;
-		informacion[3][4] = 6;
-
-		informacion[4][0] = 1;
-		informacion[4][1] = 400;
-		informacion[4][2] = 300;
-		informacion[4][3] = 700;
-		informacion[4][4] = 1;
-
-		informacion[5][0] = 1750;
-		informacion[5][1] = 400;
-		informacion[5][2] = 400;
-		informacion[5][3] = 400;
-		informacion[5][4] = 1;
-
-		return informacion;
-	}
-
-	public static int[][] statsPersonajes(int[][] informacion) {
+	public static int[][] Personajes(int[][] informacion) {
 		// 0: HP, 1: Ataque, 2: Defensa, 3: Velocidad.
 		// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
 		informacion[0][0] = 1750;
 		informacion[0][1] = 450;
 		informacion[0][2] = 400;
 		informacion[0][3] = 500;
+		// Movs
+		informacion[0][4] = 0;
+		informacion[0][5] = 0;
+		informacion[0][6] = 250;
+		informacion[0][7] = 0;
+		informacion[0][8] = 200;
+		// UsabilidadMovs
+		informacion[0][9] = 4;
+		informacion[0][10] = 10;
+		informacion[0][11] = 7;
+		informacion[0][12] = 1;
+		informacion[0][13] = 6;
+		// Items Curativos
+		informacion[0][14] = 875;
+		informacion[0][15] = 1;
+		informacion[0][16] = 450;
+		informacion[0][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[0][18] = 3;
+		informacion[0][19] = 1;
+		// Estos aumentan los stats del personaje
+		informacion[0][20] = 37; // Stats de ataque.
+		informacion[0][21] = 2;
+		informacion[0][22] = 37; // Stats de Defensa.
+		informacion[0][23] = 2;
+		informacion[0][24] = 37; // Stats de Velocidad.
+		informacion[0][25] = 2;
+		//Tipo de personaje
+		informacion[0][26] = 0;
 
 		informacion[1][0] = 1750;
 		informacion[1][1] = 500;
 		informacion[1][2] = 300;
 		informacion[1][3] = 450;
+		informacion[1][4] = 0;
+		informacion[1][5] = 300;
+		informacion[1][6] = 250;
+		informacion[1][7] = 0;
+		informacion[1][8] = 0;
+		informacion[1][9] = 5;
+		informacion[1][10] = 6;
+		informacion[1][11] = 7;
+		informacion[1][12] = 1; // Esta habilidad solo dura 3 turnos
+		informacion[1][13] = 3; // Esta solo dura 4 turnos
+		// Items Curativos
+		informacion[1][14] = 875;
+		informacion[1][15] = 1;
+		informacion[1][16] = 450;
+		informacion[1][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[1][18] = 3;
+		informacion[1][19] = 1;
+		// Estos aumentan los stats del personaje
+		informacion[1][20] = 37; // Stats de ataque.
+		informacion[1][21] = 2;
+		informacion[1][22] = 37; // Stats de Defensa.
+		informacion[1][23] = 2;
+		informacion[1][24] = 37; // Stats de Velocidad.
+		informacion[1][25] = 2;
+		informacion[1][26] = 0;
 
 		informacion[2][0] = 1750;
 		informacion[2][1] = 600;
 		informacion[2][2] = 250;
 		informacion[2][3] = 350;
+		informacion[2][4] = 0;
+		informacion[2][5] = 0;
+		informacion[2][6] = 0;
+		informacion[2][7] = 300;
+		informacion[2][8] = 250;
+		informacion[2][9] = 1; // Esta habilidad es infinita
+		informacion[2][10] = 3;
+		informacion[2][11] = 2; // esta dura 3 turnos y solo se puede usar despues de que el efecto de la
+								// anterior haya acabado
+		informacion[2][12] = 7;
+		informacion[2][13] = 5;
+		// Items Curativos
+		informacion[2][14] = 875;
+		informacion[2][15] = 1;
+		informacion[2][16] = 450;
+		informacion[2][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[2][18] = 3;
+		informacion[2][19] = 1;
+		// Estos aumentan los stats del personaje
+		informacion[2][20] = 37; // Stats de ataque.
+		informacion[2][21] = 2;
+		informacion[2][22] = 37; // Stats de Defensa.
+		informacion[2][23] = 2;
+		informacion[2][24] = 37; // Stats de Velocidad.
+		informacion[2][25] = 2;
+		informacion[2][26] = 0;
 
 		informacion[3][0] = 1750;
 		informacion[3][1] = 400;
 		informacion[3][2] = 500;
 		informacion[3][3] = 550;
+		informacion[3][4] = 0;
+		informacion[3][5] = 0;
+		informacion[3][6] = 150;
+		informacion[3][7] = 150;
+		informacion[3][8] = 250;
+		informacion[3][9] = 1; // Esta dura infinitamente
+		informacion[3][10] = 7;
+		informacion[3][11] = 5;
+		informacion[3][12] = 5;
+		informacion[3][13] = 6;
+		// Items Curativos
+		informacion[3][14] = 875;
+		informacion[3][15] = 1;
+		informacion[3][16] = 450;
+		informacion[3][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[3][18] = 3;
+		informacion[3][19] = 1;
+		// Estos aumentan los stats del personaje
+		informacion[3][20] = 37; // Stats de ataque.
+		informacion[3][21] = 2;
+		informacion[3][22] = 37; // Stats de Defensa.
+		informacion[3][23] = 2;
+		informacion[3][24] = 37; // Stats de Velocidad.
+		informacion[3][25] = 2;
+		informacion[3][26] = 1;
 
 		informacion[4][0] = 1750;
 		informacion[4][1] = 400;
 		informacion[4][2] = 300;
 		informacion[4][3] = 700;
+		informacion[4][4] = 0;
+		informacion[4][5] = 450;
+		informacion[4][6] = 250;
+		informacion[4][7] = 0;
+		informacion[4][8] = 0;
+		informacion[4][9] = 1;
+		informacion[4][10] = 4;
+		informacion[4][11] = 5;
+		informacion[4][12] = 1;
+		informacion[4][13] = 3;
+		// Items Curativos
+		informacion[4][14] = 875;
+		informacion[4][15] = 1;
+		informacion[4][16] = 450;
+		informacion[4][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[4][18] = 3;
+		informacion[4][19] = 1;
+		// Estos aumentan los stats del personaje
+		informacion[4][20] = 37; // Stats de ataque.
+		informacion[4][21] = 2;
+		informacion[4][22] = 37; // Stats de Defensa.
+		informacion[4][23] = 2;
+		informacion[4][24] = 37; // Stats de Velocidad.
+		informacion[4][25] = 2;
+		informacion[4][26] = 1;
 
 		informacion[5][0] = 1750;
 		informacion[5][1] = 400;
 		informacion[5][2] = 400;
 		informacion[5][3] = 400;
+		informacion[5][4] = 0;
+		informacion[5][5] = 0;
+		informacion[5][6] = 0;
+		informacion[5][7] = 200;
+		informacion[5][8] = 450;
+		informacion[5][9] = 5;
+		informacion[5][10] = 5;
+		informacion[5][11] = 6;
+		informacion[5][12] = 6;
+		informacion[5][13] = 4;
+		// Items Curativos
+		informacion[5][14] = 875;
+		informacion[5][15] = 1;
+		informacion[5][16] = 450;
+		informacion[5][17] = 2;
+		// Este aumenta los pps del personaje.
+		informacion[5][18] = 3;
+		informacion[5][19] = 100;
+		// Estos aumentan los stats del personaje
+		informacion[5][20] = 37; // Stats de ataque.
+		informacion[5][21] = 200;
+		informacion[5][22] = 37; // Stats de Defensa.
+		informacion[5][23] = 200;
+		informacion[5][24] = 37; // Stats de Velocidad.
+		informacion[5][25] = 200;
+		informacion[5][26] = 0;
 
 		return informacion;
 	}
@@ -544,48 +661,6 @@ public class JuegoEclipse {
 		System.out.println(cadena);
 	}
 
-	public static int[][] potenciaMovs(int[][] informacion) {
-		// Estos son los movimientos del personaje y el daño que hacen
-		// 0: Eclipse, 1: Evil, 2: Cosmic, 3: Elina, 4: Keravnos, 5: ChuhZmR.
-		informacion[0][0] = 0;
-		informacion[0][1] = 0;
-		informacion[0][2] = 250;
-		informacion[0][3] = 0;
-		informacion[0][4] = 200;
-
-		informacion[1][0] = 0;
-		informacion[1][1] = 300;
-		informacion[1][2] = 250;
-		informacion[1][3] = 0;
-		informacion[1][4] = 0;
-
-		informacion[2][0] = 0;
-		informacion[2][1] = 0;
-		informacion[2][2] = 0;
-		informacion[2][3] = 300;
-		informacion[2][4] = 250;
-
-		informacion[3][0] = 0;
-		informacion[3][1] = 0;
-		informacion[3][2] = 150;
-		informacion[3][3] = 150;
-		informacion[3][4] = 250;
-
-		informacion[4][0] = 0;
-		informacion[4][1] = 450;
-		informacion[4][2] = 250;
-		informacion[4][3] = 0;
-		informacion[4][4] = 0;
-
-		informacion[5][0] = 0;
-		informacion[5][1] = 0;
-		informacion[5][2] = 0;
-		informacion[5][3] = 200;
-		informacion[5][4] = 450;
-
-		return informacion;
-	}
-
 	public static double dañoRandom() {
 		double max = 0.7;
 		double min = 0.3;
@@ -611,7 +686,7 @@ public class JuegoEclipse {
 		}
 	}
 
-	public static int[][] sumadorDeStats(int[][] matriz, int personaje) {
+	public static int[][] sumadorDeStatsPorMoneda(int[][] matriz, int personaje) {
 		int max = 3;
 		int min = 1;
 		int range = (max - min) + min;
@@ -656,92 +731,78 @@ public class JuegoEclipse {
 		}
 		return matriz;
 	}
-
-	public static int[][] devolverMatrizDeItems(int matriz[][]) {
-		
-			// Estos items aumentan los puntos de salud del usuario.
-			matriz[0][0] = 875;
-			matriz[0][1] = 1;
-			matriz[1][0] = 450;
-			matriz[1][1] = 2;
-			// Este aumenta los pps del personaje.
-			matriz[2][0] = 3;
-			matriz[2][1] = 1;
-			// Estos aumentan los stats del personaje
-			matriz[3][0] = 37; // Stats de ataque.
-			matriz[3][1] = 2;
-			matriz[4][0] = 37; // Stats de Defensa.
-			matriz[4][1] = 2;
-			matriz[5][0] = 37; // Stats de Velocidad.
-			matriz[5][1] = 2;
-
-		return matriz;
-	}
-
 	public static String[][] devolverMatrizDeInformacion(int matriz[][], String[][] matrix) {
 		matrix[0][0] = "Elixir de Luminaria: Este item sube los puntos de salud del usuario a la mitad, tienes "
-				+ matriz[0][1] + " puntos de pp.";
+				+ matriz[0][15] + " puntos de pp.";
 		matrix[1][0] = "Brebaje vital: Este item sube los puntos de salud del usuario a un cuarto, tienes "
-				+ matriz[1][1] + " puntos de pp.";
+				+ matriz[1][17] + " puntos de pp.";
 		matrix[2][0] = "Tónico de Concentración: Este item sube los pps de un movimiento del usuario, tienes "
-				+ matriz[2][1] + " puntos de pp.";
-		matrix[3][0] = "Filofera: Este item aumenta el ataque del usuario, tienes " + matriz[3][1] + " puntos de pp.";
-		matrix[4][0] = "Aegisflora: Este item aumenta la defensa del usuario, tienes " + matriz[4][1]
+				+ matriz[2][19] + " puntos de pp.";
+		matrix[3][0] = "Filofera: Este item aumenta el ataque del usuario, tienes " + matriz[3][21] + " puntos de pp.";
+		matrix[4][0] = "Aegisflora: Este item aumenta la defensa del usuario, tienes " + matriz[4][23]
 				+ " puntos de pp.";
-		matrix[5][0] = "Velosprint: Este item aumenta la velocidad del usuario, tienes " + matriz[5][1]
+		matrix[5][0] = "Velosprint: Este item aumenta la velocidad del usuario, tienes " + matriz[5][25]
 				+ " puntos de pp.";
 		return matrix;
 	}
-public static int devuelveItemsUsables (int totalDeItems, int [][] matrizDePP) {
-	if (matrizDePP[0][1] < 1 || matrizDePP[1][1] < 1 || matrizDePP[2][1] < 1 || matrizDePP[3][1] < 1 || matrizDePP[4][1] < 1
-			|| matrizDePP[5][1] < 1) {
-		totalDeItems--;
+
+	public static int devuelveItemsUsables(int totalDeItems, int[][] matrizDePP, int usuario) {
+		if (matrizDePP[usuario][15] < 1 || matrizDePP[usuario][17] < 1 || matrizDePP[usuario][19] < 1 || matrizDePP[usuario][21] < 1
+				|| matrizDePP[usuario][23] < 1 || matrizDePP[usuario][25] < 1) {
+			totalDeItems--;
+		}
+		return totalDeItems;
 	}
-	return totalDeItems;
-}
-	
-	public static int[][] restador(int[][] matrizDePP, int choosing, int opcionUsuario) {
+
+	public static int[][] restador(int[][] matrizDePP, int choosing, int opcionUsuario, int opcion) {
 		if (choosing == 1) {
-			matrizDePP[opcionUsuario][1]--;
+			matrizDePP[opcionUsuario][opcion]--;
 		}
 		return matrizDePP;
 	}
-	
-	public static int[][] excepcionChuh(int[][] matrizDePP, int personaje) {
-		if (personaje == 6) {
-			for (int i = 2; i<6; i++) {
-				 matrizDePP[i][1] = 100;
-			}
-		} 
-		return matrizDePP;
-	}
-	
-	public static int choosing(Scanner sc, int choosing, String [][]matrizDeInfo, int eleccion) {
+
+	public static int choosing(Scanner sc, int choosing, String[][] matrizDeInfo, int eleccion) {
 		System.out.println(matrizDeInfo[eleccion][0]);
 		System.out.println("¿Quieres usarlo? Pulsa(1) si quieres que asi sea, o pulsa (2) si no quieres el objeto.");
 		choosing = sc.nextInt();
-		while (choosing <1 || choosing > 2) {
+		while (choosing < 1 || choosing > 2) {
 			System.out.println("Tienes que decir o si (1), o no (2), vuelve a intentarlo.");
 			choosing = sc.nextInt();
 		}
 
-		
-		
-		
 		return choosing;
 	}
-	public static int[][] sistemaDeItems(Scanner sc, int[][] matrizDePP, String[][] matrizDeInfo, int totalDeItems, int[][] statsUsuario, int opcion, int choosing) {
-		
-		
-		if (choosing == 1) {
-			System.out.println(statsUsuario[opcion][0]);
+
+	public static int[][] sistemaDeItems(Scanner sc, int[][] matrizDePP, String[][] matrizDeInfo, int totalDeItems,
+			int[][] statsUsuario, int opcion, int choosing, int otraOpcion) {
+		int anterior = statsUsuario[opcion][otraOpcion];
+		switch (choosing) {
+		case 1:
 			statsUsuario[opcion][0] += matrizDePP[opcion][0];
-		} 
-		else if (choosing == 2) {
+			switch (opcion) {
+			case 0:
+				System.out.println("Acabas de curarte, ¡¡¡Has pasado de " + anterior + " HP a "
+						+ statsUsuario[opcion][0] + " HP!!!!");
+				break;
+			case 1:
+				System.out.println("Acabas de curarte, ¡¡¡Has pasado de " + anterior + " HP a "
+						+ statsUsuario[opcion][0] + " HP!!!!");
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				break;
+			case 5:
+				break;
+			}
+			break;
+		case 2:
 			System.out.println("Genial, vamos de vuelta al menú");
+			break;
 		}
-		System.out.println(statsUsuario[opcion][0]);
 		return statsUsuario;
 	}
-	
+
 }
