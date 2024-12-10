@@ -101,9 +101,7 @@ public class JuegoEclipse {
 						System.out.println("Perfecto, ¿Qué movimiento vas a querer usar?");
 						muestraPersonaje(informacion, personajeUno);
 						acción = sc.nextInt();
-						movsQueNoSePuedenUsar (puntosMovimientos, personajeUno, acción, sc);
 						--acción;
-						--puntosMovimientos[personajeUno][acción+1];
 						batalla(verificador, personajeUno, statsTotales, acción, personajeDos, movimientos, nombreMovimiento, personaje, enemigo, puntosMovimientos);
 						break;
 					case 2:
@@ -185,11 +183,14 @@ public class JuegoEclipse {
 		sc.close();
 	}
 	public static int movsQueNoSePuedenUsar (int [][]puntosMovs, int usuario, int eleccion, Scanner sc) {
-		while (puntosMovs[usuario][eleccion] < 1) {
+		int nuevaEleccion = eleccion;
+		while (puntosMovs[usuario][nuevaEleccion] < 1) {
 			System.out.println("Error, no puedes escoger ese movimientos porque ya no tienes mas pp. Escoge otro movimiento.");
-			eleccion = sc.nextInt();
+			nuevaEleccion = sc.nextInt();
+			--nuevaEleccion;
+			sc.nextLine();
 		}
-		return eleccion;
+		return nuevaEleccion;
 	}
 	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs, String [][]nombreMovimientos, String nombrePersonaje, String nombreEnemigo, int[][] puntosMovs) {
 		// Esto es el combate
@@ -198,6 +199,9 @@ public class JuegoEclipse {
 			System.out.println("Error, no puedes escoger eso. Vuelve a intentarlo.");
 			eleccion = sc.nextInt();
 		}
+		movsQueNoSePuedenUsar (puntosMovs, usuario, eleccion, sc);
+		eleccion = movsQueNoSePuedenUsar (puntosMovs, usuario, eleccion, sc);
+		--puntosMovs[usuario][eleccion];
 		
 		double random = dañoRandom();
 		algoritmoDeVelocidad(acierto, statsTotales, eleccion, enemigo);
