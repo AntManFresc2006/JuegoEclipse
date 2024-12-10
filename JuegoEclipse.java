@@ -29,6 +29,7 @@ public class JuegoEclipse {
 		movimientos = potenciaMovs(movimientos);
 		verificador = true;
 		items = devolverMatrizDeItems(items);
+		puntosMovimientos = usabilidadMovs(puntosMovimientos);
 
 		System.out.println("\n Saludos, este es un juego de batalla de hasta 5 personajes, que son los siguientes.");
 		System.out.println("\t1er personaje: Eclipse.");
@@ -100,8 +101,10 @@ public class JuegoEclipse {
 						System.out.println("Perfecto, ¿Qué movimiento vas a querer usar?");
 						muestraPersonaje(informacion, personajeUno);
 						acción = sc.nextInt();
+						movsQueNoSePuedenUsar (puntosMovimientos, personajeUno, acción, sc);
 						--acción;
-						batalla(verificador, personajeUno, statsTotales, acción, personajeDos, movimientos, nombreMovimiento);
+						--puntosMovimientos[personajeUno][acción+1];
+						batalla(verificador, personajeUno, statsTotales, acción, personajeDos, movimientos, nombreMovimiento, personaje, enemigo, puntosMovimientos);
 						break;
 					case 2:
 						totalDeItems = 6;
@@ -181,28 +184,39 @@ public class JuegoEclipse {
 		} while (eleccion != 5);
 		sc.close();
 	}
-	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs, String [][]nombreMovimientos) {
+	public static int movsQueNoSePuedenUsar (int [][]puntosMovs, int usuario, int eleccion, Scanner sc) {
+		while (puntosMovs[usuario][eleccion] < 1) {
+			System.out.println("Error, no puedes escoger ese movimientos porque ya no tienes mas pp. Escoge otro movimiento.");
+			eleccion = sc.nextInt();
+		}
+		return eleccion;
+	}
+	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs, String [][]nombreMovimientos, String nombrePersonaje, String nombreEnemigo, int[][] puntosMovs) {
 		// Esto es el combate
 		Scanner sc = new Scanner(System.in);
 		while (eleccion < 1 || eleccion > 5) {
 			System.out.println("Error, no puedes escoger eso. Vuelve a intentarlo.");
 			eleccion = sc.nextInt();
 		}
+		
 		double random = dañoRandom();
 		algoritmoDeVelocidad(acierto, statsTotales, eleccion, enemigo);
 		if (acierto == true) {
 			statsTotales[enemigo][0] -= ((statsTotales[usuario][1] * potenciaMovs[usuario][eleccion]) * random)
 					/ statsTotales[enemigo][2];
-			System.out.println("Tu personaje usó: "+nombreMovimientos[usuario][eleccion]+".");
+			
 			algoritmoDeEnemigo (potenciaMovs, enemigo, statsTotales, usuario);
-			System.out.println("El enemigo usó: "+nombreMovimientos[enemigo][eleccion]+".");
+			
+			--puntosMovs[enemigo][eleccion];
+			System.out.println(nombrePersonaje+" usó: "+nombreMovimientos[usuario][eleccion]+".");
+			System.out.println(nombreEnemigo+" usó: "+nombreMovimientos[enemigo][eleccion]+".");
 		}
 		else if (acierto == false) {
 			algoritmoDeEnemigo (potenciaMovs, enemigo, statsTotales, usuario);
-			System.out.println("El enemigo usó: "+nombreMovimientos[enemigo][eleccion]+".");
+			System.out.println(nombreEnemigo+" usó: "+nombreMovimientos[enemigo][eleccion]+".");
 			statsTotales[enemigo][0] -= ((statsTotales[usuario][1] * potenciaMovs[usuario][eleccion]) * random)
 					/ statsTotales[enemigo][2];
-			System.out.println("Tu personaje usó: "+nombreMovimientos[usuario][eleccion]+".");
+			System.out.println(nombrePersonaje+" usó: "+nombreMovimientos[usuario][eleccion]+".");
 		}
 		
 		
@@ -361,16 +375,16 @@ public class JuegoEclipse {
 		informacion[3][4] = 6;
 
 		informacion[4][0] = 1;
-		informacion[4][1] = 400;
-		informacion[4][2] = 300;
-		informacion[4][3] = 700;
-		informacion[4][4] = 1;
+		informacion[4][1] = 3;
+		informacion[4][2] = 3;
+		informacion[4][3] = 4;
+		informacion[4][4] = 3;
 
-		informacion[5][0] = 1750;
-		informacion[5][1] = 400;
-		informacion[5][2] = 400;
-		informacion[5][3] = 400;
-		informacion[5][4] = 1;
+		informacion[5][0] = 4;
+		informacion[5][1] = 4;
+		informacion[5][2] = 4;
+		informacion[5][3] = 4;
+		informacion[5][4] = 4;
 
 		return informacion;
 	}
@@ -756,12 +770,12 @@ public class JuegoEclipse {
 			int[][] statsUsuario, int opcion, int choosing) {
 
 		if (choosing == 1) {
-			System.out.println(statsUsuario[opcion][0]);
+			int primerNumero = statsUsuario[opcion][0];
 			statsUsuario[opcion][0] += matrizDePP[opcion][0];
+			System.out.println(primerNumero+" ha pasado a "+statsUsuario[opcion][0]);
 		} else if (choosing == 2) {
 			System.out.println("Genial, vamos de vuelta al menú");
 		}
-		System.out.println(statsUsuario[opcion][0]);
 		return statsUsuario;
 	}
 
@@ -775,7 +789,9 @@ public class JuegoEclipse {
 		return personajeTipo;
 	}
 
-	public static int[][] movimientosTipo(int[][] personajeTipo) {
+	
+	  public static int[][] movimientosTipo(int[][] personajeTipo) {
+	 
 		//Esta es la matriz que contiene los tipos de movimientos de los personajes:
 		/*
 		 * 0: Normal
@@ -821,6 +837,7 @@ public class JuegoEclipse {
 		personajeTipo[5][4] = 0;
 		return personajeTipo;
 	}
+
 	public static int[][] probabilidadMovs(int [][] personajeTipo) {
 		personajeTipo[0][0] = 1;
 		personajeTipo[0][1] = 1;
@@ -943,6 +960,95 @@ public static String[][] importarNombreAtaques (String[][]informacion) {
 	return informacion;
 }
 
-
+public static int[][] algoritmoDeMovimientos (int [][] statsTotales, int personaje, int movimiento) {
+	switch (personaje) {
+	case 0:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	case 1:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	case 2:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	case 3:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	case 4:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	case 5:
+		switch (movimiento) {
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+			}
+		break;
+	
+	}
+	return statsTotales;
+}
 	
 }
