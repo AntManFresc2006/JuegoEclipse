@@ -1,7 +1,5 @@
-package Eclipse;
-
+package juegoEclipse;
 import java.util.Scanner;
-
 public class JuegoEclipse {
 	public static void main(String[] args) {
 
@@ -9,22 +7,28 @@ public class JuegoEclipse {
 
 		Scanner sc = new Scanner(System.in);
 		int eleccion, personajeUno, personajeDos, personajeTres, personajeCuatro, acción, variable, opciones,
-				opcionUsuario, choosing = 0;
+				opcionUsuario, choosing;
 		String personaje, personaje2, enemigo, enemigo2, opcion;
 		String[][] informacion = new String[6][7];
 		String[][] informacionDeItems = new String[6][1];
+		String[][] nombreMovimiento = new String[6][5];
+		
 		int[][] datosPersonajes, statsTotales;
-		boolean certeza = false;
-		boolean verificador = true;
 		statsTotales = new int[6][4];
+		boolean certeza;
+		boolean verificador;
 		int[][] movimientos = new int[6][5];
-		movimientos = potenciaMovs(movimientos);
 		int[][] puntosMovimientos = new int[6][5];
 		int items[][] = new int[6][2];
-		items = devolverMatrizDeItems(items);
 		int totalDeItems;
 
-		// Final de variables/constantes
+		// Asignacion de valores de variables/constantes
+		choosing = 0;
+		nombreMovimiento = importarNombreAtaques(nombreMovimiento);
+		certeza = false;
+		movimientos = potenciaMovs(movimientos);
+		verificador = true;
+		items = devolverMatrizDeItems(items);
 
 		System.out.println("\n Saludos, este es un juego de batalla de hasta 5 personajes, que son los siguientes.");
 		System.out.println("\t1er personaje: Eclipse.");
@@ -97,7 +101,7 @@ public class JuegoEclipse {
 						muestraPersonaje(informacion, personajeUno);
 						acción = sc.nextInt();
 						--acción;
-						batalla(verificador, personajeUno, statsTotales, acción, personajeDos, movimientos);
+						batalla(verificador, personajeUno, statsTotales, acción, personajeDos, movimientos, nombreMovimiento);
 						break;
 					case 2:
 						totalDeItems = 6;
@@ -177,7 +181,7 @@ public class JuegoEclipse {
 		} while (eleccion != 5);
 		sc.close();
 	}
-	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs) {
+	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs, String [][]nombreMovimientos) {
 		// Esto es el combate
 		Scanner sc = new Scanner(System.in);
 		while (eleccion < 1 || eleccion > 5) {
@@ -189,12 +193,16 @@ public class JuegoEclipse {
 		if (acierto == true) {
 			statsTotales[enemigo][0] -= ((statsTotales[usuario][1] * potenciaMovs[usuario][eleccion]) * random)
 					/ statsTotales[enemigo][2];
+			System.out.println("Tu personaje usó: "+nombreMovimientos[usuario][eleccion]+".");
 			algoritmoDeEnemigo (potenciaMovs, enemigo, statsTotales, usuario);
+			System.out.println("El enemigo usó: "+nombreMovimientos[enemigo][eleccion]+".");
 		}
 		else if (acierto == false) {
 			algoritmoDeEnemigo (potenciaMovs, enemigo, statsTotales, usuario);
+			System.out.println("El enemigo usó: "+nombreMovimientos[enemigo][eleccion]+".");
 			statsTotales[enemigo][0] -= ((statsTotales[usuario][1] * potenciaMovs[usuario][eleccion]) * random)
 					/ statsTotales[enemigo][2];
+			System.out.println("Tu personaje usó: "+nombreMovimientos[usuario][eleccion]+".");
 		}
 		
 		
@@ -895,4 +903,46 @@ public static int[][] algoritmoDeEnemigo (int[][]ataqueEnemigo, int enemigo, int
 	return statsUsuario;
 }
 
+public static String[][] importarNombreAtaques (String[][]informacion) {
+	informacion[0][0] = "Clonación";
+	informacion[0][1] = "Stat-Boosts";
+	informacion[0][2] = "Soulfuck";
+	informacion[0][3] = "Adapting";
+	informacion[0][4] = "Energy-Attacks";
+
+	informacion[1][0] = "Mental Manipulation";
+	informacion[1][1] = "Energy-Storm";
+	informacion[1][2] = "Soulfuck";
+	informacion[1][3] = "Phaisa-Shield";
+	informacion[1][4] = "Parasit";
+
+	informacion[2][0] = "Body-Change";
+	informacion[2][1] = "Constraint";
+	informacion[2][2] = "Cursed";
+	informacion[2][3] = "Witness-Oblivion";
+	informacion[2][4] = "Divine-Flash";
+
+	informacion[3][0] = "Roots";
+	informacion[3][1] = "Shell";
+	informacion[3][2] = "Ray-Beam";
+	informacion[3][3] = "Frost-Attack";
+	informacion[3][4] = "Hurricane";
+
+	informacion[4][0] = "Item-Warping";
+	informacion[4][1] = "Cosmic Skill: Black Holes";
+	informacion[4][2] = "Cosmic Skill: Mental Illness";
+	informacion[4][3] = "Time-Stop";
+	informacion[4][4] = "Fastering";
+
+	informacion[5][0] = "BeforeDay";
+	informacion[5][1] = "ClassRest";
+	informacion[5][2] = "Gambling";
+	informacion[5][3] = "Golpes normales";
+	informacion[5][4] = "Super-Perfect-Cell-Kamehameha";
+
+	return informacion;
+}
+
+
+	
 }
