@@ -45,6 +45,7 @@ public class JuegoEclipse {
 		System.out.println("\t6to personaje: ChuhZmR.");
 
 		do {
+			//Aqui comienza el menu, si el usuario escoge el numero 1, empezara el combate, si escoge el 2, le aparecera la informacion, si escoge el 3, el programa terminará y si escoge otro numero distinto, le dara error.
 			System.out.println(
 					"\nAhora, dime qué es lo que quieres hacer,  ¿Preferirías establecer un modo de combate 1vs1 (pulsa '1')? preferirias ver la información de cada personaje? (pulsa '2') o preferirías acabar este juego?(pulsa '3')");
 			eleccion = sc.nextInt();
@@ -140,11 +141,15 @@ public class JuegoEclipse {
 				break;
 
 			case 2:
+				statsTotales = statsPersonajes(statsTotales);
 				System.out.println(
 						"\nGenial, pulsa un numero del personaje del cual quieres buscar información, y a continuacion te mostrare su informacion.");
 				usuario = sc.nextInt();
 				usuario = Reeleccion(usuario, -999);
-				infoPJ(informacion, usuario);
+				System.out.println("¿Quieres ver los movimientos y habilidades del personaje? ¿O solo quieres ver sus stats?");
+				sc.nextLine();
+				opcion = sc.nextLine();
+				condicionInfo (sc, opcion, usuario, informacion, statsTotales);
 				break;
 
 			case 3:
@@ -169,7 +174,7 @@ public class JuegoEclipse {
 	public static void batalla(boolean acierto, int usuario, int statsTotales[][], int eleccion, int enemigo, int[][] potenciaMovs, String [][]nombreMovimientos, String nombrePersonaje, String nombreEnemigo, int[][] puntosMovs) {
 		// Esto es el combate
 		Scanner sc = new Scanner(System.in);
-		while (eleccion < 1 || eleccion > 5) {
+		while (eleccion < 0 || eleccion > 4) {
 			System.out.println("Error, no puedes escoger eso. Vuelve a intentarlo.");
 			eleccion = sc.nextInt();
 		}
@@ -961,5 +966,30 @@ public class JuegoEclipse {
 		}
 		return matrizDePP;
 	}
-
+public static void mostrarStatsDelPj (int [][] statsTotales, int opcion) {
+	for (int i = 0; i<statsTotales[opcion].length;i++) {
+		if (i==0) {
+			System.out.println(statsTotales[opcion][i]+" puntos de HP.");
+		}if (i==1) {
+			System.out.println(statsTotales[opcion][i]+" puntos de Ataque.");
+		}if (i==2) {
+			System.out.println(statsTotales[opcion][i]+" puntos de Defensa.");
+		}if (i==3) {
+			System.out.println(statsTotales[opcion][i]+" puntos de Velocidad.");
+		}
+	}
+}
+public static void condicionInfo (Scanner sc, String opcion, int personaje, String [][] info, int [][]statsTotales) {
+	while (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("stats", opcion) == false && equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("movimientos", opcion) == false) {
+		System.out.println("Error, tienes que escribir o 'stats' o 'movimientos'.");
+		opcion = sc.nextLine();
+	}
+	if (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("stats", opcion) == true) {
+		mostrarStatsDelPj (statsTotales, personaje);
+	}
+	else if (equalsParaQueGuillamonNoMeMateUsandoElIgnoreCase("movimientos", opcion) == true) {
+		infoPJ(info, personaje);
+	}
+	
+}
 }
